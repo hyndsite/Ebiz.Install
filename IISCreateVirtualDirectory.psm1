@@ -52,7 +52,6 @@ function Install-VirtualDirectory([string]$site, [string]$app, [string]$name = "
 		$type = "site"
 	}
 	
-	Write-host "Type is: " $type
 	switch ($type) {
 		site {
 			Write-ColorText -Text "----------------------------------------------------------" -Color Yellow -NewLine

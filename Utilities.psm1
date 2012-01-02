@@ -65,21 +65,28 @@ function Import-WebAdministration {
 	{
 		import-module WebAdministration
 	} else 	{
+		Write-Warning "WebAdministration Module not available to load."
+		Write-Warning "Attempting to check if Snapin is available..."
+		
 		$regSnapin = Get-pssnapin -Registered | where { $_.Name -eq "WebAdministration" }
 		
 		if ($regSnapin) {
+			Write-ColorText -Text "IIS 7 PSSnapin is registered, loading IIS 7 PSSnapin..." -Color Cyan -NewLine
 			Load-pssnapin -pssnapin "WebAdministration"
 		} else {
+			Write-Warning "Snapin not registered, registering IIS 7 PSSnapin..."
 			#IIS 7 Snapin not registered, so we will need to install
 			$proc = $Env:Processor_Architecture
 						
 			switch ($proc.ToLower()) {
 				amd64 {
+					Write-ColorText -Text "Registering IIS 7 PSSnapin for AMD64 Processor..." -Color Cyan -NewLine
 					$path = (Join-Path $PWD "inetmgr_amd64.msi")
 					$Arguments = Get-Arguments -path $path
 					Start-Process "msiexec.exe" -ArgumentList $Arguments -Wait
 				}
 				x86 {
+					Write-ColorText -Text "Registering IIS 7 PSSnapin for x86 Processor..." -Color Cyan -NewLine
 					$path = (Join-Path $PWD "iis7psprov_x86.msi")
 					$Arguments = Get-Arguments -path $path
 					Start-Process "msiexec.exe" -ArgumentList $Arguments -Wait

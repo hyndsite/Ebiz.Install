@@ -71,7 +71,7 @@ function Create-NewSite
 							
 	if (Install-AppPool($sitePool)) {
 		Write-ColorText -Text "Binding site $($site) to application pool $($sitePool)" -Color Cyan -NewLine
-		#Set-ItemProperty "IIS:\Sites\$($site)" ApplicationPool $appPool
+		Set-ItemProperty "IIS:\Sites\$($site)" ApplicationPool $appPool
 	}
 	
 	$script:site = $site

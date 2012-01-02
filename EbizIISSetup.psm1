@@ -74,12 +74,15 @@ function Install-Ebiz {
 				Install-VirtualDirectory -site $info["Site"] -app $info["App"] -name "DesktopModules\ModuleDefinitions" -path (Join-Path $parentDir Ebiz.Modules\ModuleDefinitions)
 				
 				#Create Handler Mappings
-				Write-ColorText -Text "Creating Handler Mappings..." -Color Cyan -NewLine
-				Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Ebiz WildCard Mapping" -path "*" -verb "*" -modules "IsapiModule" -scriptProcessor "%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll" -resourceType "Unspecified" -requireAccess "None"
-				Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Image Mapping" -path "*.jpg, *.png, *.gif, *.ico, *.tif, *.tiff" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
-			    Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Video Mapping" -path "*.avi, *.mp3, *.mp4, *.mpg, *.wmv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
-				Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Binary Mapping" -path "*.exe, *.zip, *.dfx" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
-				Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Flash Mapping" -path "*.swf, *.fla, *.flv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
+				$iisVersion = get-itemproperty HKLM:\Software\Microsoft\Inetstp | select SetupString, *Version*
+				if ($iisVersion -And $iisVersion.MajorVersion.ToString().Contains("7")) {
+					Write-ColorText -Text "Creating Handler Mappings..." -Color Cyan -NewLine
+					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Ebiz WildCard Mapping" -path "*" -verb "*" -modules "IsapiModule" -scriptProcessor "%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll" -resourceType "Unspecified" -requireAccess "None"
+					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Image Mapping" -path "*.jpg, *.png, *.gif, *.ico, *.tif, *.tiff" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
+					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Video Mapping" -path "*.avi, *.mp3, *.mp4, *.mpg, *.wmv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
+					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Binary Mapping" -path "*.exe, *.zip, *.dfx" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
+					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Flash Mapping" -path "*.swf, *.fla, *.flv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
+				}
 				
 				#apply Dnn Security Fix
 				Write-ColorText -Text "Applying Dnn Security Fix" -Color Cyan -NewLine
@@ -94,10 +97,3 @@ function Install-Ebiz {
 }
 
 Export-ModuleMember Install-Ebiz
-
-
-#. $appcmd ADD VDIR /app.name:$site/ /path:/Services /physicalPath:$(Join-Path $site_path Ebiz.Modules\Services)
-#. $appcmd ADD VDIR /app.name:$site/ /path:/Images1 /physicalPath:$(Join-Path $site_path Website\Portals\0\Skins\NationalProducts\images)
-#. $appcmd ADD VDIR /app.name:$site/ /path:/DesktopModules/Ebiz.Modules /physicalPath:$(Join-Path $site_path Ebiz.Modules)
-#. $appcmd ADD VDIR /app.name:$site/ /path:/DesktopModules/ModuleDefinitions /physicalPath:$(Join-Path $site_path Ebiz.Modules\ModuleDefinitions)
-
