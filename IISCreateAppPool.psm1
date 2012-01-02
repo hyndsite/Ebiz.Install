@@ -1,5 +1,6 @@
 function Install-AppPool([string]$appPool) {
 	if (!$appPool) {
+		Write-Warning "No AppPool submitted"
 		return $false
 	}
 	

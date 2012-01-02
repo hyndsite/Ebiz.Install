@@ -4,13 +4,10 @@ function Create-VirtualDirectory ($sitePath, $name, $path) {
 }
 
 function Install-VirtualDirectory([string]$site, [string]$app, [string]$name = "", [string]$path = "") {
-	Write-host "Setting up Virtual directories for site: $($site) and $($app)."
-	
 	if (!$site) {
 		$site = Find-Site
 	}
-	
-	
+		
 	$siteApps = Get-SiteApps $site
 	if ($siteApps) {
 		if (!$app) {
@@ -40,7 +37,7 @@ function Install-VirtualDirectory([string]$site, [string]$app, [string]$name = "
 			if ($path) {
 				While (!(Test-Path $path)) {
 					#Get virtual directory's physical path
-					Write-ColorText -Text "The physical location specified does not exists. Please choose a valid physical location for the virtual directory" -Color Cyan -NewLine
+					Write-ColorText -Text "The physical location specified does not exists. Please choose a valid physical location for the virtual directory" -Color Yellow -NewLine
 					$path = Select-Folder -message "Please specify the physical location for the virtual directory"
 				}
 			}
@@ -55,14 +52,16 @@ function Install-VirtualDirectory([string]$site, [string]$app, [string]$name = "
 	switch ($type) {
 		site {
 			Write-ColorText -Text "----------------------------------------------------------" -Color Yellow -NewLine
-			Write-ColorText -Text "Creating virtual directory $($name) for site $($site)..." -Color Cyan -NewLine
+			Write-ColorText -Text ">>> Creating virtual directory ", $($name), " for site ", $($site), " <<<" -Color Green, White, Green, White, Green -NewLine
+			Write-Host ""
 			Create-VirtualDirectory "IIS:\Sites\$($site)" $name $path
 			Write-Host ""
 		}
 		
 		app {
 			Write-ColorText -Text "----------------------------------------------------------" -Color Yellow -NewLine
-			Write-ColorText -Text "Creating virtual directory $($name) for site $($site)\$($app)..." -Color Cyan -NewLine
+			Write-ColorText -Text ">>> Creating virtual directory ", $($name), " for site ", $($site), "\", $($app)" <<<" -Color Green, White, Green, White, Green, White, Green -NewLine
+			Write-Host ""
 			Create-VirtualDirectory "IIS:\Sites\$($site)\$($app)" $name $path
 			Write-Host ""
 		}

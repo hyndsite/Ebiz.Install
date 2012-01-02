@@ -16,11 +16,9 @@ function Add-SiteApp
 		$app = Read-Host "Please enter a valid application name: " -foreground yellow
 		Write-Host
 	}
-	
-	$appPool = "$($app)Pool"
 	Write-Host ""
 		
-	Write-ColorText -Text "Please Select the Location of the Website Content..." -Color Cyan -NewLine 
+	Write-ColorText -Text "Input Needed >>", "Please Select the Location of the Website Content" -Color Yellow, White -NewLine 
 	$path = Select-Folder -message "Please Select the Location of the Website Content"
 	Write-ColorText -Text "Adding new application $app for site $($site)..." -Color Cyan -NewLine 
 	
@@ -28,6 +26,7 @@ function Add-SiteApp
 	New-Item "IIS:\Sites\$($site)\$($app)" -Type Application -PhysicalPath $path
 	
 	#Set Application Pool
+	$appPool = "$($app)Pool"
 	if (Install-AppPool($appPool)) {
 		Write-ColorText -Text "Binding application $($app) to application pool $($appPool)" -Color Cyan -NewLine
 		Set-ItemProperty "IIS:\Sites\$($site)\$($app)" ApplicationPool $appPool
@@ -63,15 +62,18 @@ function Acquire-NewSiteName {
 function Create-NewSite
 {
 	$site = Acquire-NewSiteName
-	$sitePool = "$($site)Pool"
+	
+	
+	Write-ColorText -Text "Input Needed >>", "Please Select the Location of the Website Content" -Color Yellow, White -NewLine 
 	$path = Select-Folder -message "Please Select the Location of the Website Content"
 	
 	#Create New Site
 	New-Item IIS:\Sites\$site -bindings @{protocol = "http"; bindingInformation = "*:80:"} -PhysicalPath $path
-							
-	if (Install-AppPool($sitePool)) {
-		Write-ColorText -Text "Binding site $($site) to application pool $($sitePool)" -Color Cyan -NewLine
-		Set-ItemProperty "IIS:\Sites\$($site)" ApplicationPool $appPool
+					
+	$appPool = "$($site)Pool"
+	if (Install-AppPool($appPool)) {
+		Write-ColorText -Text "Binding site $($site) to application pool $($appPool)" -Color Cyan -NewLine
+		 Set-ItemProperty "IIS:\Sites\$($site)" -Name ApplicationPool -Value $appPool
 	}
 	
 	$script:site = $site
@@ -96,19 +98,15 @@ function Install-Site([string]$action = "", [switch]$Internal) {
 			if ($newApp)
 			{
 				Write-Host ""
-				Write-ColorText -Text "*******************************" -Color green -NewLine
-				Write-ColorText -Text "**", "  New Application created  ", "**" -Color green, yellow, green -NewLine 
-				Write-ColorText -Text "*******************************" -Color green -NewLine 
-											
+				Write-ColorText -Text ">>>", "  New Application ", $($app), " created  ", "<<<" -Color Green, Green, White, Green, Green -NewLine 
+				Write-Host ""										
 				if ($script:Internal) {
 					return @{"Site" = $($site); "App" = $($app); "Path" = $($dirPath)}
 				}
 			} else 
 			{
 				Write-Host ""
-				Write-ColorText -Text "***************************************************************" -Color green -NewLine 
-				Write-ColorText -Text "**", "  Error: There was a problem creating the new application  ", "**" -Color green, yellow, green -NewLine 
-				Write-ColorText -Text "***************************************************************" -Color green -NewLine 
+				Write-ColorText -Text ">>>", "  Error: There was a problem creating the new application  ", $($app), " <<<" -Color green, yellow, White, green -NewLine 
 				Write-Host ""
 			}	
 		} 
@@ -126,10 +124,8 @@ function Install-Site([string]$action = "", [switch]$Internal) {
 			if ($newSite)
 			{
 				Write-Host ""
-				Write-ColorText -Text "************************" -Color green -NewLine 
-				Write-ColorText -Text "**", "  New Site created  ", "**" -Color green, yellow, green -NewLine 
-				Write-ColorText -Text "************************" -Color green -NewLine 
-				
+				Write-ColorText -Text ">>>", "  New Site ", $($site), " created  ", "<<<" -Color Green, Green, White, Green, Green -NewLine 
+				Write-Host ""			
 				
 				if ($script:Internal) {
 					return @{"Site" = $($site); "Path" = $($dirPath)}
@@ -137,9 +133,7 @@ function Install-Site([string]$action = "", [switch]$Internal) {
 			} else 
 			{
 				Write-Host ""
-				Write-ColorText -Text "********************************************************" -Color green -NewLine 
-				Write-ColorText -Text "**", "  Error: There was a problem creating the new site  ", "**" -Color green, yellow, green -NewLine 
-				Write-ColorText -Text "********************************************************" -Color green -NewLine 
+				Write-ColorText -Text ">>>", "  Error: There was a problem creating the new site  ", $($site), " <<<" -Color green, yellow, White, green -NewLine 
 				Write-Host ""
 			}		
 		}
@@ -149,7 +143,7 @@ function Install-Site([string]$action = "", [switch]$Internal) {
 			Write-ColorText -Text "What Do you want to do?" -Color green -NewLine 
 			Write-ColorText -Text "Add an application to an existing site or create a New site? " -Color green -NewLine 
 			Write-Host 
-			Write-ColorText -Text "[A]", "Add or ", "[N]", "ew: " -Color Green, DarkGreen, Green, DarkGreen
+			Write-ColorText -Text "[A]", "Add or ", "[N]", "New: " -Color Yellow, Green, Yellow, Green
 			$option = Read-Host
 			Write-Host
 						

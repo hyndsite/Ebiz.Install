@@ -1,10 +1,10 @@
 function Security-DnnFix([string]$sitePath) {
-	$path = join-path $sitePath "Website\Providers\HtmlEditorProviders\Fck"
-	$config = join-path $sitePath "Website\web.config"
+	$path = join-path $sitePath "Providers\HtmlEditorProviders\Fck"
+	$config = join-path $sitePath "web.config"
 
 	if(!(Test-Path $path) -or !(test-path $config)) {
 		Write-Warning "The path: $($path) or the website config file path: $($config) is not correct or does not exist."
-		Exit
+		Return
 	}
 
 	$guid = [guid]::NewGuid().ToString("n");
@@ -24,20 +24,18 @@ function Install-Ebiz {
 	$ErrorActionPreference = "Stop"
 		
 	#Ensure we have the WebAdministration module loaded.
-	Import-WebAdministration
+	
 	
 	#Lets find out what the user wants to do
-	Write-ColorText -Text "********************************************" -Color Green -NewLine
-	Write-ColorText -Text "********************************************" -Color Green -NewLine
-	Write-ColorText -Text "**                                        **" -Color Green -NewLine
-	Write-ColorText -Text "**  What do you want to do?               **" -Color Green -NewLine
-	Write-ColorText -Text "**                                        **" -Color Green -NewLine
-	Write-ColorText -Text "**  1) Complete Ebiz Site Deployment      **" -Color Green -NewLine
-	Write-ColorText -Text "**  2) Quit                               **" -Color Green -NewLine
-	Write-ColorText -Text "**                                        **" -Color Green -NewLine
-	Write-ColorText -Text "********************************************" -Color Green -NewLine
-	Write-ColorText -Text "********************************************" -Color Green -NewLine
-	$option = Read-Host "Your choice "
+	Write-ColorText -Text "*******************************************" -Color Green -NewLine
+	Write-ColorText -Text "*                                         *" -Color Green -NewLine
+	Write-ColorText -Text "*  What do you want to do?                *" -Color Green -NewLine
+	Write-ColorText -Text "*                                         *" -Color Green -NewLine
+	Write-ColorText -Text "*  1) Complete Ebiz Site Deployment       *" -Color Green -NewLine
+	Write-ColorText -Text "*  2) Quit                                *" -Color Green -NewLine
+	Write-ColorText -Text "*                                         *" -Color Green -NewLine
+	Write-ColorText -Text "*******************************************" -Color Green -NewLine
+	$option = Read-Host "Your Chose >> "
 	
 	While ($option -lt 1 -Or $option -gt 2) 
 	{
@@ -63,10 +61,11 @@ function Install-Ebiz {
 				}
 				
 				#Create VirtualDirectories
-				Write-ColorText -Text "Creating Virtual Directories..." -Color Cyan -NewLine
+				Write-ColorText -Text ">> ", "Creating Virtual Directories" -Color Yellow, White -NewLine
+				Write-Host ""
 				Install-VirtualDirectory -site $info["Site"] -app $info["App"] -name "Services" -path (Join-Path $parentDir Ebiz.Modules\Services)
 				
-				Write-ColorText -Text "Select the Image directory...." -Color Cyan -NewLine
+				Write-ColorText -Text "Input Needed >>", "Select the Image directory...." -Color Yellow, White -NewLine
 				$imageDir = Select-Folder -message "Please choose which directory contains Images." -path $info["Path"]
 				
 				Install-VirtualDirectory -site $info["Site"] -app $info["App"] -name "Images1" -path $imageDir
@@ -74,9 +73,17 @@ function Install-Ebiz {
 				Install-VirtualDirectory -site $info["Site"] -app $info["App"] -name "DesktopModules\ModuleDefinitions" -path (Join-Path $parentDir Ebiz.Modules\ModuleDefinitions)
 				
 				#Create Handler Mappings
+				$configPath = Join-Path $info["Path"] web.config
+				
+				if (Test-Path $configPath) {
+					if ((gp $configPath IsReadOnly).IsReadOnly) {
+						sp $configPath IsReadOnly $false
+					}
+				}
+				
 				$iisVersion = get-itemproperty HKLM:\Software\Microsoft\Inetstp | select SetupString, *Version*
 				if ($iisVersion -And $iisVersion.MajorVersion.ToString().Contains("7")) {
-					Write-ColorText -Text "Creating Handler Mappings..." -Color Cyan -NewLine
+					Write-ColorText -Text ">> ", "Creating Handler Mappings" -Color Yellow, White -NewLine
 					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Ebiz WildCard Mapping" -path "*" -verb "*" -modules "IsapiModule" -scriptProcessor "%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll" -resourceType "Unspecified" -requireAccess "None"
 					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Image Mapping" -path "*.jpg, *.png, *.gif, *.ico, *.tif, *.tiff" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
 					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Video Mapping" -path "*.avi, *.mp3, *.mp4, *.mpg, *.wmv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
@@ -85,8 +92,9 @@ function Install-Ebiz {
 				}
 				
 				#apply Dnn Security Fix
-				Write-ColorText -Text "Applying Dnn Security Fix" -Color Cyan -NewLine
-				#Security-DnnFix -sitePath $info["Path"]
+				Write-Host ""
+				Write-ColorText -Text ">> ", "Applying Dnn Security Fix" -Color Yellow, White -NewLine
+				Security-DnnFix -sitePath $info["Path"]
 			}
 			catch [Exception] {
 				$_.Exception.ToString()
