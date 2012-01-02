@@ -26,14 +26,68 @@ function Read-ColorText([String[]]$Text, [ConsoleColor[]]$Color)
 #**********************************
 #**       Specific Modules       **
 #**********************************
+
+function Load-pssnapin([string]$pssnapin) {
+	$regSnapin = Get-pssnapin -Registered | where { $_.Name -eq $pssnapin }
+	
+	if ($regSnapin) {
+		Add-pssnapin -Name WebAdministration -ErrorAction SilentlyCOntinue -ErrorVariable err
+		if ($err){
+			if($err[0].Exception.Message.Contains( 'because it is already added')){
+				Write-Host "$($pssnapin) already added!" -ForegroundColor green
+			}else{
+				Write-Host "an error occurred:$($err[0])." -BackgroundColor white -ForegroundColor red
+				exit
+			}
+		}else{
+			Write-Verbose "$($pssnapin) Snapin installed"
+		}
+	} else {
+		Write-Warning "pssnapin $($pssnapin) not registered so it will need to be installed first..."
+	}
+}
+
+function Get-Arguments([string]$path) {
+	$Arguments = @()
+	$Arguments += "/i"
+	$Arguments += "`"$path`""
+	$Arguments += "RebootYesNo=`"No`""
+	$Arguments += "REBOOT=`"Suppress`""
+	$Arguments += "ALLUSERS=`"1`""
+	$Arguments += "/passive"
+	
+	$Arguments
+}
+
 function Import-WebAdministration {
 	$webAdminModule = get-module -ListAvailable | ? { $_.Name -eq "webadministration" }
 	If ($webAdminModule -ne $null) 
 	{
 		import-module WebAdministration
-	} else 
-	{
-		add-pssnapin WebAdministration
+	} else 	{
+		$regSnapin = Get-pssnapin -Registered | where { $_.Name -eq "WebAdministration" }
+		
+		if ($regSnapin) {
+			Load-pssnapin -pssnapin "WebAdministration"
+		} else {
+			#IIS 7 Snapin not registered, so we will need to install
+			$proc = $Env:Processor_Architecture
+						
+			switch ($proc.ToLower()) {
+				amd64 {
+					$path = (Join-Path $PWD "inetmgr_amd64.msi")
+					$Arguments = Get-Arguments -path $path
+					Start-Process "msiexec.exe" -ArgumentList $Arguments -Wait
+				}
+				x86 {
+					$path = (Join-Path $PWD "iis7psprov_x86.msi")
+					$Arguments = Get-Arguments -path $path
+					Start-Process "msiexec.exe" -ArgumentList $Arguments -Wait
+				}
+			}
+			#Attempting to load the snapin assuming it installed correctly
+			Load-pssnapin -pssnapin "WebAdministration"
+		}
 	}
 }
 

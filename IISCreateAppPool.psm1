@@ -9,8 +9,8 @@ function Install-AppPool([string]$appPool) {
 		Write-ColorText -Text "Application Pool $($appPool) already exists, will use existing application pool." -Color Cyan -NewLine
 		$appPoolName = Get-ChildItem IIS:\apppools | where { $_.Name -eq $appPool}
 		$appPoolName.Stop()
-		$appPoolName | Set-ItemProperty -Name "managedRuntimeVersion" -Value "v2.0"
-		$appPoolName | Set-ItemProperty -Name "managedPipelineMode" -Value 1
+		$appPoolName | Set-ItemProperty -Name "ManagedRunTimeVersion" -Value "v2.0"
+		$appPoolName | Set-ItemProperty -Name "ManagedPipelineMode"  -Value "1"
 		return $true
 	}
 	
@@ -19,8 +19,8 @@ function Install-AppPool([string]$appPool) {
 	
 	$appPoolName = Get-ChildItem IIS:\apppools | where { $_.Name -eq $appPool}
 	$appPoolName.Stop()
-	$appPoolName | Set-ItemProperty -Name "managedRuntimeVersion" -Value "v2.0"
-	$appPoolName | Set-ItemProperty -Name "managedPipelineMode" -Value 1
+	$appPoolName | Set-ItemProperty -Name "ManagedRunTimeVersion" -Value "v2.0"
+	$appPoolName | Set-ItemProperty -Name "ManagedPipelineMode"  -Value "1"
 	$appPoolName.Start()
 	
 	$confirmedAppPool = Get-ChildItem IIS:\AppPools | where {$_.Name -eq $appPool}
