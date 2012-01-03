@@ -31,7 +31,7 @@ function Install-VirtualDirectory([string]$site, [string]$app, [string]$name = "
 		
 		if (!$path) {
 			#Get virtual directory's physical path
-			Write-ColorText -Text "Select virtual directory's physical directory...." -Color Cyan -NewLine
+			Write-ColorText -Text "INPUT NEEDED >>", "Select virtual directory's physical directory" -Color Yellow, White -NewLine
 			$path = Select-Folder -message "Please specify the physical location for the virtual directory"
 			
 			if ($path) {

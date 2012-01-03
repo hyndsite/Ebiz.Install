@@ -20,6 +20,12 @@ function Add-SiteApp
 		
 	Write-ColorText -Text "Input Needed >>", "Please Select the Location of the Website Content" -Color Yellow, White -NewLine 
 	$path = Select-Folder -message "Please Select the Location of the Website Content"
+	
+	while (!$path) {
+		Write-ColorText -Text "Input Needed >>", "You did not specify a folder for the website content. Please select a valid folder" -Color Yellow, White -NewLine 
+		$path = Select-Folder -message "Please Select the Location of the Website Content"
+	}
+	
 	Write-ColorText -Text "INFO: >>", " Adding new application ", $app, " for site ", $($site) -Color Gray, Green, White, Green, White  -NewLine 
 	
 	#Create App
@@ -65,6 +71,11 @@ function Create-NewSite
 	
 	Write-ColorText -Text "Input Needed >>", "Please Select the Location of the Website Content" -Color Yellow, White -NewLine 
 	$path = Select-Folder -message "Please Select the Location of the Website Content"
+	
+	while (!$path) {
+		Write-ColorText -Text "Input Needed >>", "You did not specify a folder for the website content. Please select a valid folder" -Color Yellow, White -NewLine 
+		$path = Select-Folder -message "Please Select the Location of the Website Content"
+	}
 	
 	#Create New Site
 	New-Item IIS:\Sites\$site -bindings @{protocol = "http"; bindingInformation = "*:80:"} -PhysicalPath $path
