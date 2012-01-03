@@ -61,7 +61,7 @@ function Install-Ebiz {
 				}
 				
 				#Create VirtualDirectories
-				Write-ColorText -Text ">> ", "Creating Virtual Directories" -Color Yellow, White -NewLine
+				Write-ColorText -Text "INFO>> ", "Creating Virtual Directories" -Color Yellow, White -NewLine
 				Write-Host ""
 				Install-VirtualDirectory -site $info["Site"] -app $info["App"] -name "Services" -path (Join-Path $parentDir Ebiz.Modules\Services)
 				
@@ -83,7 +83,8 @@ function Install-Ebiz {
 				
 				$iisVersion = get-itemproperty HKLM:\Software\Microsoft\Inetstp | select SetupString, *Version*
 				if ($iisVersion -And $iisVersion.MajorVersion.ToString().Contains("7")) {
-					Write-ColorText -Text ">> ", "Creating Handler Mappings" -Color Yellow, White -NewLine
+					Write-ColorText -Text "INFO: >> ", " Creating Handler Mappings" -Color Yellow, White -NewLine
+					
 					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Ebiz WildCard Mapping" -path "*" -verb "*" -modules "IsapiModule" -scriptProcessor "%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll" -resourceType "Unspecified" -requireAccess "None"
 					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Image Mapping" -path "*.jpg, *.png, *.gif, *.ico, *.tif, *.tiff" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
 					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Video Mapping" -path "*.avi, *.mp3, *.mp4, *.mpg, *.wmv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
@@ -93,7 +94,7 @@ function Install-Ebiz {
 				
 				#apply Dnn Security Fix
 				Write-Host ""
-				Write-ColorText -Text ">> ", "Applying Dnn Security Fix" -Color Yellow, White -NewLine
+				Write-ColorText -Text "INFO: >> ", "Applying Dnn Security Fix" -Color Yellow, White -NewLine
 				Security-DnnFix -sitePath $info["Path"]
 			}
 			catch [Exception] {

@@ -52,7 +52,7 @@ function Install-VirtualDirectory([string]$site, [string]$app, [string]$name = "
 	switch ($type) {
 		site {
 			Write-ColorText -Text "----------------------------------------------------------" -Color Yellow -NewLine
-			Write-ColorText -Text ">>> Creating virtual directory ", $($name), " for site ", $($site), " <<<" -Color Green, White, Green, White, Green -NewLine
+			Write-ColorText -Text "INFO: >>", " Creating virtual directory ", $($name), " for site ", $($site), " <<<" -Color Gray, Green, White, Green, White, Green -NewLine
 			Write-Host ""
 			Create-VirtualDirectory "IIS:\Sites\$($site)" $name $path
 			Write-Host ""
@@ -60,7 +60,7 @@ function Install-VirtualDirectory([string]$site, [string]$app, [string]$name = "
 		
 		app {
 			Write-ColorText -Text "----------------------------------------------------------" -Color Yellow -NewLine
-			Write-ColorText -Text ">>> Creating virtual directory ", $($name), " for site ", $($site), "\", $($app)" <<<" -Color Green, White, Green, White, Green, White, Green -NewLine
+			Write-ColorText -Text "INFO: >>", " Creating virtual directory ", $($name), " for site ", $($site), "\", $($app)" <<<" -Color Gray, Green, White, Green, White, Green, White, Green -NewLine
 			Write-Host ""
 			Create-VirtualDirectory "IIS:\Sites\$($site)\$($app)" $name $path
 			Write-Host ""

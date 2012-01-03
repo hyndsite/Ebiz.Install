@@ -10,7 +10,7 @@ function Install-HandlerMappings([string]$site, [string]$app = "", [string]$name
 	}
 	
 	$appcmd = "$env:windir\system32\inetsrv\AppCmd"
-	.$appcmd SET config "$($fullPath)" -section:system.webServer/handlers /+"[name='$($name)',path='$($path)',verb='$($verb)',type='$($type)',modules='$($modules)',resourceType='$($resourceType)',requireAccess='$($requireAccess)']"
+	.$appcmd SET config "$($fullPath)" -section:system.webServer/handlers /+"[name='$($name)',path='$($path)',verb='$($verb)',type='$($type)',modules='$($modules)',scriptProcessor='$($scriptProcessor)',resourceType='$($resourceType)',requireAccess='$($requireAccess)']"
 	
 	#[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.Web.Administration") | Out-Null
 	#$iis = new-object Microsoft.Web.Administration.ServerManager
