@@ -52,6 +52,22 @@ function Get-HandlerAttributes([string]$name) {
 	}
 }
 
+function Get-AvailableFunctions {
+	Write-Host "These are the available functions available. Additional information about each function is available by typing: "
+	Write-Host ""
+	Write-ColorText -Text "Get-Help <", "Function", ">" -Color Yellow, White, Yellow -NewLine
+	Write-Host ""
+	Write-ColorText -Text "Functions:" -Color Yellow -NewLine
+	Write-ColorText -Text "	Install-Ebiz" -Color Cyan -NewLine
+	Write-ColorText -Text "	Install-Site" -Color Cyan -NewLine
+	Write-ColorText -Text "	Install-AppPool" -Color Cyan -NewLine
+	Write-ColorText -Text "	Install-HandlerMappings" -Color Cyan -NewLine
+	Write-Host ""
+	Write-ColorText -Text "Example:" -Color Yellow -NewLine
+	Write-Host "   	Get-Help Install-Ebiz"
+	Write-Host ""
+}
+
 function Security-DnnFix([string]$sitePath) {
 	$path = join-path $sitePath "Providers\HtmlEditorProviders\Fck"
 	$config = join-path $sitePath "web.config"
@@ -175,4 +191,4 @@ function Install-Ebiz {
 	}
 }
 
-Export-ModuleMember Install-Ebiz
+Export-ModuleMember Install-Ebiz, Get-AvailableFunctions
