@@ -1,3 +1,15 @@
+<#
+.DESCRIPTION
+	This function will create a new IIS application pool OR set the Ebusiness required application parameters to an existing application pool
+	
+.EXAMPLE
+	.\Install-AppPool -appPool MyNewAppPool
+	
+.NOTES
+	IIS Does not allow for any non-alphanumeric characters
+	
+#>
+
 function Install-AppPool([string]$appPool) {
 	if (!$appPool) {
 		Write-Warning ">>> No AppPool submitted <<<"

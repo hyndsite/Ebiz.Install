@@ -1,3 +1,57 @@
+function Get-HandlerAttributes([string]$name) {
+	$attributes = New-Object System.Collections.Specialized.OrderedDictionary
+	switch ($name) {
+		wildcard {
+			$attributes.Add("path", "*")
+			$attributes.Add("verb", "*")
+			$attributes.Add("modules", "StaticFileModule")
+			$attributes.Add("scriptProcessor", "%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll")
+			$attributes.Add("resourceType", "Unspecified")
+			$attributes.Add("requireAccess", "None")
+			$attributes.Add("allowPathInfo", "false")
+			$attributes.Add("preCondition", "classicMode,runtimeVersionv2.0,bitness32")
+			$attributes.Add("responseBufferLimit", "4194304")
+			return $attributes
+		}
+		image {
+			$attributes.Add("path", "*.jpg, *.png, *.gif, *.ico, *.tif, *.tiff")
+			$attributes.Add("verb", "GET")
+			$attributes.Add("modules", "IsapiModule")
+			$attributes.Add("resourceType", "File")
+			$attributes.Add("requireAccess", "Read")
+			$attributes.Add("responseBufferLimit", "4194304")
+			return $attributes
+		}
+		video {
+			$attributes.Add("path", "*.avi, *.mp3, *.mp4, *.mpg, *.wmv")
+			$attributes.Add("verb", "GET")
+			$attributes.Add("modules", "IsapiModule")
+			$attributes.Add("resourceType", "File")
+			$attributes.Add("requireAccess", "Read")
+			$attributes.Add("responseBufferLimit", "4194304")
+			return $attributes
+		}
+		binary {
+			$attributes.Add("path", "*.exe, *.zip, *.dfx")
+			$attributes.Add("verb", "GET")
+			$attributes.Add("modules", "IsapiModule")
+			$attributes.Add("resourceType", "File")
+			$attributes.Add("requireAccess", "Read")
+			$attributes.Add("responseBufferLimit", "4194304")
+			return $attributes
+		}
+		flash {
+			$attributes.Add("path", "*.swf, *.fla, *.flv")
+			$attributes.Add("verb", "GET")
+			$attributes.Add("modules", "IsapiModule")
+			$attributes.Add("resourceType", "File")
+			$attributes.Add("requireAccess", "Read")
+			$attributes.Add("responseBufferLimit", "4194304")
+			return $attributes
+		}
+	}
+}
+
 function Security-DnnFix([string]$sitePath) {
 	$path = join-path $sitePath "Providers\HtmlEditorProviders\Fck"
 	$config = join-path $sitePath "web.config"
@@ -19,6 +73,23 @@ function Security-DnnFix([string]$sitePath) {
 	# Fix the web.config
 	(Get-Content $config) | Foreach-Object {$_ -replace 'fcklinkgallery', $guid} | Set-Content $config
 }
+
+<#
+ .DESCRIPTION
+	This will deploy an IIS site and complete the following tasks
+	- Create IIS Site or IIS Site Application
+	- Create Application pool with Visual Ebusiness required parameters and bind to specified site or site application
+	- Create required Visual Ebusiness virtual directories
+	- (IIS 7.0 / 7.5 Only) Create IIS Hanlder Mappings
+	
+ .EXAMPLE
+	.\Setup
+	.\Install-Ebiz
+ 
+ .NOTES
+	The Setup.ps1 script must be ran first in order to load all necessary modules and necessary PSSnapin's.
+	
+#>
 
 function Install-Ebiz {
 	$ErrorActionPreference = "Stop"
@@ -84,12 +155,11 @@ function Install-Ebiz {
 				$iisVersion = get-itemproperty HKLM:\Software\Microsoft\Inetstp | select SetupString, *Version*
 				if ($iisVersion -And $iisVersion.MajorVersion.ToString().Contains("7")) {
 					Write-ColorText -Text "INFO: >> ", " Creating Handler Mappings" -Color Yellow, White -NewLine
-					
-					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Ebiz WildCard Mapping" -path "*" -verb "*" -modules "IsapiModule" -scriptProcessor "%windir%\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll" -resourceType "Unspecified" -requireAccess "None"
-					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Image Mapping" -path "*.jpg, *.png, *.gif, *.ico, *.tif, *.tiff" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
-					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Video Mapping" -path "*.avi, *.mp3, *.mp4, *.mpg, *.wmv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
-					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Binary Mapping" -path "*.exe, *.zip, *.dfx" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
-					Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "Flash Mapping" -path "*.swf, *.fla, *.flv" -verb "GET" -modules "StaticFileModule" -resourceType "File" -requireAccess "Read"
+					$mappings = "Wildcard", "Image", "Video", "Binary", "Flash"
+					for ($i = 0; $i -lt $mappings.Length; $i++) {
+					   $attributes = Get-HandlerAttributes -name $($mappings[$i]).ToLower()
+					   Install-HandlerMappings -site $info["Site"] -app $info["App"] -name "$($mappings[$i]) Mappings" -Attributes $attributes
+				    }
 				}
 				
 				#apply Dnn Security Fix

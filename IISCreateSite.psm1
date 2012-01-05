@@ -92,6 +92,19 @@ function Create-NewSite
 	return Get-ChildItem IIS:\sites | ? { $_.Name -eq $site } 
 }
 
+<#
+.DESCRIPTION
+	This functions will create a new IIS Site or a new IIS Application for an existing site
+	
+.EXAMPLE
+	.\Install-Site
+	.\Install-Site -action add
+	.\Install-Site -action new
+		
+.NOTES
+	The action is optional. Without an action specified, it will prompt the user for an action
+#>
+
 function Install-Site([string]$action = "", [switch]$Internal) {
 	switch ($action) 
 	{
